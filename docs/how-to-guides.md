@@ -7,7 +7,7 @@ provided in this project.
 
 You have two numbers and you need to add them together.
 You're in luck! The `calculator` package can help you
-get this done.
+get this done. 
 
 Download the code from this GitHub repository and place
 the `calculator/` folder in the same directory as your
