@@ -37,15 +37,16 @@ jobs:
       # Deploy main documentation
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push'
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
+          keep_files: true
 
       # Deploy PR preview documentation
       - name: Deploy PR Preview
         if: github.event_name == 'pull_request'
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
@@ -79,7 +80,7 @@ jobs:
             git config user.name github-actions[bot]
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
             git rm -rf pr-preview/$PR_NUMBER
-            git commit -m "Remove PR preview for #$PR_NUMBER"
+            git commit -m "Remove PR preview for PR #$PR_NUMBER"
             git push
           else
             echo "No preview directory found for PR #$PR_NUMBER"
