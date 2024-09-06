@@ -4,18 +4,17 @@ on:
     branches:
       - master
       - mkdocs
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: write
+  pages: write
+  id-token: write
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
@@ -28,4 +27,38 @@ jobs:
             mkdocs-material-
       - run: pip install -e .[docs]
       - run: mkdocs build --strict
-      - run: mkdocs gh-deploy --force
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Set preview URL
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "PREVIEW_URL=${{ steps.deployment.outputs.page_url }}pr-preview/${{ github.event.pull_request.number }}/" >> $GITHUB_OUTPUT
+
+  comment:
+    needs: deploy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              body: 'Preview this PR\'s documentation changes at: ${{ needs.deploy.outputs.PREVIEW_URL }}'
+            })
