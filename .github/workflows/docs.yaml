@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request_target'
     steps:
+      # Build documentation
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
@@ -36,7 +37,7 @@ jobs:
 
       # Deploy main documentation
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,7 +53,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
-          destination_dir: pr-preview/${{ github.event.pull_request.number }}
+          destination_dir: .pr-preview/${{ github.event.pull_request.number }}
           keep_files: true
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
@@ -80,10 +81,10 @@ jobs:
       - name: Delete PR Preview
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
-          if [ -d "pr-preview/$PR_NUMBER" ]; then
+          if [ -d ".pr-preview/$PR_NUMBER" ]; then
             git config user.name github-actions[bot]
             git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-            git rm -rf pr-preview/$PR_NUMBER
+            git rm -rf .pr-preview/$PR_NUMBER
             git commit -m "Remove PR preview for PR #$PR_NUMBER"
             git push
           else
