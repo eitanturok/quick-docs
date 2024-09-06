@@ -1,3 +1,4 @@
+
 This site contains the project documentation for the
 `calculator` project that is a toy module used in the
 Real Python tutorial
@@ -32,3 +33,5 @@ I want to thank my house plants for providing me with
 a negligible amount of oxygen each day. Also, I want
 to thank the sun for providing more than half of their
 nourishment free of charge.
+
+HEEEYYYYYY YOYO
