@@ -43,7 +43,7 @@ def add(a: Union[float, int], b: Union[float, int]) -> float:
     return float(a + b)
 
 def subtract(a: Union[float, int], b: Union[float, int]) -> float:
-    """Calculate the difference of any two numbers.
+    """Calculate the difference of any two numbers, floats or ints.
 
     Examples:
         >>> subtract(4.0, 2.0)
