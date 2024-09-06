@@ -5,14 +5,19 @@ on:
       - master
       - mkdocs
   pull_request:
+  pull_request_target:
+    types: [closed]
   workflow_dispatch:
+
 permissions:
   contents: write
   pages: write
   id-token: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request_target'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -58,3 +63,23 @@ jobs:
               repo: context.repo.name,
               body: 'Preview this PR\'s documentation changes at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-preview/${{ github.event.pull_request.number }}/'
             })
+
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+      - name: Delete PR Preview
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          if [ -d "pr-preview/$PR_NUMBER" ]; then
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git rm -rf pr-preview/$PR_NUMBER
+            git commit -m "Remove PR preview for #$PR_NUMBER"
+            git push
+          else
+            echo "No preview directory found for PR #$PR_NUMBER"
+          fi
